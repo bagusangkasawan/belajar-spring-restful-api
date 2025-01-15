@@ -2,6 +2,7 @@ package com.latihan.spring.controller;
 
 import com.latihan.spring.model.BaseResponse;
 import com.latihan.spring.model.Person;
+import com.latihan.spring.model.PersonListResponse;
 import com.latihan.spring.model.PersonResponse;
 import com.latihan.spring.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+
 @RequestMapping("/person")
 public class PersonController {
 
@@ -38,4 +40,11 @@ public class PersonController {
         BaseResponse baseResponse = personService.deletePersonByNama(nama);
         return ResponseEntity.ok(baseResponse);
     }
+
+    @GetMapping
+    public ResponseEntity<PersonListResponse> getAllPersons() {
+        PersonListResponse response = personService.getAllPersons();
+        return ResponseEntity.ok(response);
+    }
+
 }

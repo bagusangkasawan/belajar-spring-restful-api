@@ -2,10 +2,12 @@ package com.latihan.spring.service;
 
 import com.latihan.spring.model.BaseResponse;
 import com.latihan.spring.model.Person;
+import com.latihan.spring.model.PersonListResponse;
 import com.latihan.spring.model.PersonResponse;
 import com.latihan.spring.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 public class PersonService {
@@ -47,4 +49,14 @@ public class PersonService {
         baseResponse.setErrorMessage("Person berhasil dihapus");
         return baseResponse;
     }
+
+    public PersonListResponse getAllPersons() {
+        List<Person> persons = personRepository.getAllPersons();
+        PersonListResponse personListResponse = new PersonListResponse();
+        personListResponse.setErrorCode("SUKSES-200");
+        personListResponse.setErrorMessage("Berhasil menampilkan semua person");
+        personListResponse.setPerson(persons);
+        return personListResponse;
+    }
+
 }
