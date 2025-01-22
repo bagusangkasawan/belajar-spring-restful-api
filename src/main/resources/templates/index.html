@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Person Management</title>
+    <link rel="icon" href="/icon.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <style>
@@ -96,6 +97,9 @@
     </div>
 
     <h3 class="mt-5 text-center text-success">All Persons</h3>
+    <div class="mb-3">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search by Nama or Alamat...">
+    </div>
     <table class="table table-striped table-hover" id="personsTable">
         <thead>
         <tr>
@@ -109,7 +113,23 @@
     </table>
 </div>
 
-<!-- Edit Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-success" id="successModalLabel">Success</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Person successfully added!
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="editPersonModal" tabindex="-1" aria-labelledby="editPersonModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -139,7 +159,41 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="confirmUpdateModal" tabindex="-1" aria-labelledby="confirmUpdateLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmUpdateLabel">Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to update this person's information?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="confirmUpdateBtn" class="btn btn-primary">Yes, Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="successUpdateModal" tabindex="-1" aria-labelledby="successUpdateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-success" id="successUpdateModalLabel">Success</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Person successfully updated!
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -153,6 +207,23 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="successDeleteModal" tabindex="-1" aria-labelledby="successDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-success" id="successDeleteModalLabel">Success</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Person successfully deleted!
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
             </div>
         </div>
     </div>
@@ -204,6 +275,22 @@
             });
     }
 
+    document.getElementById('searchInput').addEventListener('input', function () {
+        const query = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#personsTable tbody tr');
+
+        rows.forEach(row => {
+            const nama = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+            const alamat = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+
+            if (nama.includes(query) || alamat.includes(query)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
     function showDeleteModal(nama) {
         personToDelete = nama;
         const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
@@ -219,7 +306,31 @@
             loadPersons();
             const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal'));
             deleteModal.hide();
+
+            const successDeleteModal = new bootstrap.Modal(document.getElementById('successDeleteModal'));
+            successDeleteModal.show();
         });
+    });
+
+    const editFields = {
+        name: document.getElementById('editName'),
+        age: document.getElementById('editAge'),
+        address: document.getElementById('editAddress'),
+    };
+
+    const updateButton = document.getElementById('updatePersonBtn');
+
+    function validateEditFields() {
+        const isEmpty = Object.values(editFields).some(field => field.value.trim() === '');
+        updateButton.disabled = isEmpty;
+    }
+
+    Object.values(editFields).forEach(field => {
+        field.addEventListener('input', validateEditFields);
+    });
+
+    document.getElementById('editPersonModal').addEventListener('show.bs.modal', () => {
+        validateEditFields();
     });
 
     document.getElementById('addPersonForm').addEventListener('submit', function(e) {
@@ -241,6 +352,9 @@
         .then(data => {
             loadPersons();
             document.getElementById('addPersonForm').reset();
+
+            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
         });
     });
 
@@ -253,25 +367,35 @@
         const modal = new bootstrap.Modal(document.getElementById('editPersonModal'));
         modal.show();
 
-        document.getElementById('updatePersonBtn').onclick = function() {
-            const updatedPerson = {
-                nama: document.getElementById('editName').value,
-                umur: document.getElementById('editAge').value,
-                alamat: document.getElementById('editAddress').value
-            };
+        document.getElementById('updatePersonBtn').onclick = function () {
+            const confirmModal = new bootstrap.Modal(document.getElementById('confirmUpdateModal'));
+            modal.hide();
+            confirmModal.show();
 
-            fetch(`/person/update/${nama}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(updatedPerson)
-            })
-            .then(response => response.json())
-            .then(data => {
-                loadPersons();
-                modal.hide();
-            });
+            document.getElementById('confirmUpdateBtn').onclick = function () {
+                const updatedPerson = {
+                    nama: document.getElementById('editName').value,
+                    umur: document.getElementById('editAge').value,
+                    alamat: document.getElementById('editAddress').value,
+                };
+
+                fetch(`/person/update/${nama}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updatedPerson),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        loadPersons();
+                        const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmUpdateModal'));
+                        confirmModal.hide();
+
+                        const successUpdateModal = new bootstrap.Modal(document.getElementById('successUpdateModal'));
+                        successUpdateModal.show();
+                    });
+            };
         };
     }
 
